@@ -5,10 +5,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherappv2.databinding.ItemForecastDetailBinding
+import com.example.weatherappv2.model.Forecastday
 import com.example.weatherappv2.model.WeatherModel
 
 class ForecastAdapter(
-    private var data: List<WeatherModel>
+    private var data: List<Forecastday>
 ) : RecyclerView.Adapter<ForecastViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
@@ -24,9 +25,4 @@ class ForecastAdapter(
 
     override fun getItemCount(): Int = data.size
 
-    fun updateData(newData: List<WeatherModel>) {
-        data = newData
-        Log.d("FromAdapterData", "Data from adapter: $data")
-        notifyDataSetChanged()
-    }
 }

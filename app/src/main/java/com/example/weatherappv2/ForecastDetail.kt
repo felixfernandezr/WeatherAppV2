@@ -24,7 +24,7 @@ class ForecastDetail : AppCompatActivity() {
 
         // Initialize ForecastDetail RecyclerView and Adapter
         weatherData?.let {
-            forecastAdapter = ForecastAdapter(listOf(it))
+            forecastAdapter = ForecastAdapter(it.forecast.forecastday)
             binding.rvForecastDetail.layoutManager = LinearLayoutManager(this)
             binding.rvForecastDetail.adapter = forecastAdapter
         }

@@ -30,6 +30,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize search history array
+        val searchHistory = mutableListOf<String>()
+
         // Initialize MainActivity RecyclerView and Adapter
         currentWeatherAdapter = CurrentWeatherAdapter(listOf())
         binding.rvMain.layoutManager = LinearLayoutManager(this)
@@ -51,11 +54,12 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
                     Log.i("query", "Search query: $query")
-                    //binding.tvLoading.text = "Loading..."
-                    //binding.tvLoading.visibility = View.VISIBLE
                     viewModel.fetchData(query) // Fetch data from ViewModel
                     binding.showForecastBtn.visibility = View.VISIBLE
+                    binding.showSearchHistoryBtn.visibility = View.VISIBLE
                     hideKeyboard() // Hide the keyboard after submission
+
+                    searchHistory.add(query)
                 }
                 return true
             }
