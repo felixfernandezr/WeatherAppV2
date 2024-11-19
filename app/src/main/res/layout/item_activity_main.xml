@@ -4,33 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     >
-    <!--
-    <TextView
-        android:id="@+id/tvLoading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text=""
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
-        <TextView
-        android:id="@+id/tvCountry"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:gravity="start"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tvCity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tvCity"
-        android:hint="country"/>
-    -->
+
     <TextView
         android:id="@+id/tvLocation"
         android:layout_width="wrap_content"

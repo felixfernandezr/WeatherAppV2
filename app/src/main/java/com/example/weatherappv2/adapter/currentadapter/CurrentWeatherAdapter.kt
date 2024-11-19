@@ -13,7 +13,6 @@ class CurrentWeatherAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrentWeatherViewHolder {
         val binding = ItemActivityMainBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        Log.d("OnCreateViewHolder", "View holder created")
         return CurrentWeatherViewHolder(binding)
     }
 

@@ -49,9 +49,17 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    implementation("androidx.activity:activity-ktx:1.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
+    implementation ("androidx.fragment:fragment-ktx:1.8.5")
+    implementation ("androidx.navigation:navigation-fragment:2.8.4")
+    implementation ("androidx.navigation:navigation-ui:2.8.4")
+
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    implementation("androidx.activity:activity-ktx:1.9.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 }
