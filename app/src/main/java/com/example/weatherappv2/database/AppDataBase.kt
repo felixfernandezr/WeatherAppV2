@@ -7,19 +7,19 @@ import androidx.room.RoomDatabase
 import com.example.weatherappv2.database.models.SearchHistoryItem
 
 @Database(entities = [SearchHistoryItem::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
+abstract class AppDataBase : RoomDatabase() {
 
     abstract fun searchHistoryDao(): SearchHistoryDAO
 
     companion object {
         @Volatile
-        private var INSTANCE: AppDatabase? = null
+        private var INSTANCE: AppDataBase? = null
 
-        fun getDatabase(context: Context): AppDatabase {
+        fun getDatabase(context: Context): AppDataBase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    AppDatabase::class.java,
+                    AppDataBase::class.java,
                     "app_database"
                 ).build()
                 INSTANCE = instance

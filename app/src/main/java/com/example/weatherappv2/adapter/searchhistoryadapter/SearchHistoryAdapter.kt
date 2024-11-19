@@ -3,10 +3,11 @@ package com.example.weatherappv2.adapter.searchhistoryadapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weatherappv2.database.models.SearchHistoryItem
 import com.example.weatherappv2.databinding.ItemFragmentHistoryBinding
 
 
-class SearchHistoryAdapter(private val items: List<String>) :
+class SearchHistoryAdapter(private var items: List<SearchHistoryItem>) :
     RecyclerView.Adapter<SearchHistoryAdapter.SearchHistoryViewHolder>() {
 
     inner class SearchHistoryViewHolder(val binding: ItemFragmentHistoryBinding) :
@@ -18,8 +19,14 @@ class SearchHistoryAdapter(private val items: List<String>) :
     }
 
     override fun onBindViewHolder(holder: SearchHistoryViewHolder, position: Int) {
-        holder.binding.textView.text = items[position]
+        val searchHistory = items[position]
+        holder.binding.tvLocation.text = "${searchHistory.cityName}, ${searchHistory.cityCountry}"
     }
 
     override fun getItemCount(): Int = items.size
+
+    fun updateData(newHistoryList: List<SearchHistoryItem>) {
+        items = newHistoryList
+        notifyDataSetChanged()
+    }
 }

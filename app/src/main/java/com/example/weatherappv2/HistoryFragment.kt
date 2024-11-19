@@ -5,36 +5,49 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherappv2.adapter.searchhistoryadapter.SearchHistoryAdapter
+import com.example.weatherappv2.database.AppDataBase
+import com.example.weatherappv2.database.SearchHistoryDAO
 import com.example.weatherappv2.databinding.FragmentHistoryBinding
+import kotlinx.coroutines.launch
 
 class HistoryFragment : Fragment() {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: SearchHistoryAdapter
-    private var searchList: List<String>? = null
+    private lateinit var searchHistoryDao: SearchHistoryDAO
+    private lateinit var appDatabase: AppDataBase
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        // Initialize Room database and DAO
+        appDatabase = AppDataBase.getDatabase(requireContext())
+        searchHistoryDao = appDatabase.searchHistoryDao()
+
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        return binding.root
-        // Inflate the layout for this fragment
+
+        // Setting up adapter and RecyclerView
+        adapter = SearchHistoryAdapter(listOf())
+        binding.rvHistory.adapter = adapter
+        binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
+
+        // Get LiveData for search history and send it to adapter
+        lifecycleScope.launch {
+            val history = searchHistoryDao.getAllSearchHistory()
+            adapter.updateData(history)
+        }
+
+        return binding.root // Inflate the layout for this fragment
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Retrieving search list from arguments
-        searchList = arguments?.getStringArrayList("searchList")
-
-        // Set up RecyclerView
-        adapter = SearchHistoryAdapter(searchList ?: emptyList())
-        binding.rvHistory.adapter = adapter
-        binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
 
         // Handling back button click
         binding.backBtn.setOnClickListener {

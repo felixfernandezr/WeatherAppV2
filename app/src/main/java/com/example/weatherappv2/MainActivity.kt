@@ -11,39 +11,41 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherappv2.adapter.currentadapter.CurrentWeatherAdapter
-import com.example.weatherappv2.database.AppDatabase
+import com.example.weatherappv2.database.AppDataBase
 import com.example.weatherappv2.database.SearchHistoryDAO
+import com.example.weatherappv2.database.models.SearchHistoryItem
 import com.example.weatherappv2.databinding.ActivityMainBinding
 import com.example.weatherappv2.model.WeatherModel
 import com.example.weatherappv2.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private lateinit var searchHistoryDao: SearchHistoryDAO
-    private lateinit var appDatabase: AppDatabase
+    private lateinit var appDatabase: AppDataBase
     private lateinit var currentWeatherAdapter: CurrentWeatherAdapter
     private lateinit var weatherData: WeatherModel
-    private val searchHistory = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize Room database
-        appDatabase = AppDatabase.getDatabase(this)
+        appDatabase = AppDataBase.getDatabase(this)
         searchHistoryDao = appDatabase.searchHistoryDao()
 
         // Initialize MainActivity binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         // Initialize MainActivity RecyclerView and Adapter
         currentWeatherAdapter = CurrentWeatherAdapter(listOf())
         binding.rvMain.layoutManager = LinearLayoutManager(this)
         binding.rvMain.adapter = currentWeatherAdapter
-
 
         // Observe weather results from ViewModel
         viewModel.weatherResult.observe(this) { data ->
@@ -52,9 +54,7 @@ class MainActivity : AppCompatActivity() {
                 currentWeatherAdapter.updateData(listOf(data)) // Update adapter data
                 weatherData = data
 
-                if (!searchHistory.contains(weatherData.location.name)) {
-                    searchHistory.add(weatherData.location.name) // Add only if it's not already in the list
-                }
+                saveToDataBase(data)
             }
         }
 
@@ -64,16 +64,15 @@ class MainActivity : AppCompatActivity() {
                 if (!query.isNullOrEmpty()) {
                     Log.i("query", "Search query: $query")
                     viewModel.fetchData(query) // Fetch data from ViewModel
+
                     binding.showForecastBtn.visibility = View.VISIBLE
                     binding.showSearchHistoryBtn.visibility = View.VISIBLE
                     hideKeyboard() // Hide the keyboard after submission
-
                 }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                binding.showForecastBtn.visibility = View.GONE
                 return true // No action needed for text changes
             }
         })
@@ -81,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 
         // Button listener for showing forecast
         binding.showForecastBtn.setOnClickListener {
-            // Start ForecastDetail activity with city name
+            // Start ForecastDetail activity with weather data response
             val intent = Intent(this, ForecastDetail::class.java).apply {
                 putExtra("WEATHER_DATA", weatherData)
             }
@@ -93,11 +92,6 @@ class MainActivity : AppCompatActivity() {
         binding.showSearchHistoryBtn.setOnClickListener {
             val fragment = HistoryFragment()
 
-            // Passing search list to the fragment
-            val bundle = Bundle()
-            bundle.putStringArrayList("searchList", ArrayList(searchHistory))
-            fragment.arguments = bundle
-
             // Hide MainActivity layout
             binding.main.visibility = View.GONE
 
@@ -108,7 +102,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Adding funcionality to OS back button
+
+    // Save to Room DataBase
+    private fun saveToDataBase(data: WeatherModel) {
+        // Extract city name and country from the weather data
+        val cityName = data.location.name
+        val cityCountry = data.location.country
+
+        // Check if the query (city) has been saved before in Room, if not, save it
+        CoroutineScope(Dispatchers.IO).launch {
+            runBlocking { // Prevents duplicates by waiting for coroutine to finish
+                // Check if the query (city) has been saved before in Room
+                val existingSearch = searchHistoryDao.getAllSearchHistory().find {
+                    it.cityName == cityName && it.cityCountry == cityCountry
+                }
+
+                // If the search history doesn't already contain this city, save it
+                if (existingSearch == null) {
+                    val searchHistoryItem = SearchHistoryItem(cityName = cityName, cityCountry = cityCountry)
+                    searchHistoryDao.insert(searchHistoryItem) // Insert into Room
+                    Log.d("SearchHistory", "Search item saved to Room: $cityName, $cityCountry")
+                } else {
+                    Log.d("SearchHistory", "Search item already exists: $cityName, $cityCountry")
+                }
+            }
+        }
+    }
+
+
+    // Adding functionality to OS back button
     override fun onBackPressed() {
         // Check if there are fragments in the back stack
         if (supportFragmentManager.backStackEntryCount > 0) {
