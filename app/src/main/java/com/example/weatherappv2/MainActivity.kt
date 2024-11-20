@@ -18,6 +18,7 @@ import com.example.weatherappv2.database.SearchHistoryDAO
 import com.example.weatherappv2.database.models.SearchHistoryItem
 import com.example.weatherappv2.databinding.ActivityMainBinding
 import com.example.weatherappv2.model.WeatherModel
+import com.example.weatherappv2.utils.KeyboardUtils
 import com.example.weatherappv2.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity() {
 
                     binding.showForecastBtn.visibility = View.VISIBLE
                     binding.showSearchHistoryBtn.visibility = View.VISIBLE
-                    hideKeyboard() // Hide the keyboard after submission
+                    KeyboardUtils.hideKeyboard(this@MainActivity) // Use KeyboardUtils to hide the keyboard
                 }
                 return true
             }
@@ -171,12 +172,5 @@ class MainActivity : AppCompatActivity() {
     // Safely calling MainActivity binding property from fragment
     fun showMainLayout() {
         binding.main.visibility = View.VISIBLE
-    }
-
-    // Hide keyboard function
-    private fun hideKeyboard() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        val view = currentFocus ?: View(this)
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
