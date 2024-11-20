@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherappv2.api.ApiResult
 import com.example.weatherappv2.api.Constants
 import com.example.weatherappv2.api.RetrofitClient
 import com.example.weatherappv2.model.WeatherModel
@@ -14,26 +15,28 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
 
     private val weatherApi = RetrofitClient.weatherApi
-    private val _weatherResult = MutableLiveData<WeatherModel>()
-    val weatherResult: LiveData<WeatherModel> = _weatherResult
+    private val _weatherResult = MutableLiveData<ApiResult<WeatherModel>>()
+    val weatherResult: LiveData<ApiResult<WeatherModel>> = _weatherResult
 
     fun fetchData(city: String){
+        _weatherResult.postValue(ApiResult.Loading) // Indicate loading state
+
         viewModelScope.launch(Dispatchers.IO){
             try {
                 val response = weatherApi.getWeather(Constants.apiKey, city, "7")
                 if (response.isSuccessful) {
-                    // Check if the response body is not null and contains forecasts
                     Log.d("payload", response.body().toString())
+                    // Check if the response body is not null and contains forecasts
                     response.body()?.let { forecastModel ->
-                        _weatherResult.postValue(forecastModel) // Post the list of WeatherModel
+                        _weatherResult.postValue(ApiResult.Success(forecastModel)) // Post the list of WeatherModel
                     } ?: run {
-                        Log.e("Error: ", "Response body is null")
+                        _weatherResult.postValue(ApiResult.Error("Response body is null"))
                     }
                 } else {
-                    Log.e("Error : ", "Response Code: ${response.code()} - ${response.message()}")
+                    _weatherResult.postValue(ApiResult.Error("Error: ${response.code()} - ${response.message()}"))
                 }
             } catch (e: Exception) {
-                Log.e("Exception : ", e.message ?: "Unknown error")
+                _weatherResult.postValue(ApiResult.Error(e.message ?: "Unknown error"))
             }
         }
     }

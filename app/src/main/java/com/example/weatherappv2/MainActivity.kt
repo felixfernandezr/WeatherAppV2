@@ -8,9 +8,11 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherappv2.adapter.currentadapter.CurrentWeatherAdapter
+import com.example.weatherappv2.api.ApiResult
 import com.example.weatherappv2.database.AppDataBase
 import com.example.weatherappv2.database.SearchHistoryDAO
 import com.example.weatherappv2.database.models.SearchHistoryItem
@@ -48,13 +50,34 @@ class MainActivity : AppCompatActivity() {
         binding.rvMain.adapter = currentWeatherAdapter
 
         // Observe weather results from ViewModel
-        viewModel.weatherResult.observe(this) { data ->
-            Log.d("ObservedData", "Received data: $data")
-            data?.let {
-                currentWeatherAdapter.updateData(listOf(data)) // Update adapter data
-                weatherData = data
+        viewModel.weatherResult.observe(this) { result ->
+            when (result) {
+                is ApiResult.Loading -> {
+                    binding.tvLoading.visibility = View.VISIBLE // Showing loading text
+                    binding.rvMain.visibility = View.GONE
+                    Log.d("LoadingState", "Loading weather data...")
+                }
+                is ApiResult.Success -> {
+                    binding.tvLoading.visibility = View.GONE // Hiding loading text
+                    binding.rvMain.visibility = View.VISIBLE // and showing data
 
-                saveToDataBase(data)
+                    val data = result.data
+                    currentWeatherAdapter.updateData(listOf(data)) // Update adapter data
+                    weatherData = data
+
+                    saveToDataBase(data) // Saving city and country to DB
+                }
+                is ApiResult.Error -> {
+                    binding.tvLoading.visibility = View.GONE
+                    binding.rvMain.visibility = View.VISIBLE
+
+                    // Show AlertDialog when data is null
+                    AlertDialog.Builder(this)
+                        .setTitle("Error")
+                        .setMessage("No data received from the server. Please try again.")
+                        .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                        .show()
+                }
             }
         }
 

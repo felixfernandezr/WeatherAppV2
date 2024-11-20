@@ -23,6 +23,20 @@
             android:queryHint="Ciudad"
             android:iconifiedByDefault="false"/>
 
+        <TextView
+            android:id="@+id/tvLoading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading..."
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/svCity"
+            app:layout_constraintBottom_toTopOf="@+id/rvMain"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMain"
             android:layout_width="match_parent"
@@ -30,7 +44,7 @@
             android:layout_margin="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/svCity"
+            app:layout_constraintTop_toBottomOf="@+id/tvLoading"
             app:layout_constraintBottom_toTopOf="@id/showForecastBtn"/>
 
         <Button
